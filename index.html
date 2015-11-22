@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>WebGL Bricks</title>
+		<meta charset="utf-8">
+
+		<style>
+#canvas-wrapper {
+	text-align: center;
+}
+
+#canvas {
+	display: inline-block;
+}
+		</style>
+
+		<script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 position;
+
+void main() {
+	gl_Position = position;
+}
+		</script>
+
+		<script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+uniform vec4 color;
+
+void main() {
+	gl_FragColor = color;
+}
+		</script>
+
+		<script type="text/javascript" src="Common/webgl-utils.js"></script>
+		<script type="text/javascript" src="Common/initShaders.js"></script>
+		<script type="text/javascript" src="Common/MV.js"></script>
+		<script type="text/javascript" src="index.js"></script>
+	</head>
+
+	<body>
+		<div id="canvas-wrapper">
+			<canvas id="canvas" width="800" height="600"></canvas>
+		</div>
+	</body>
+</html>
