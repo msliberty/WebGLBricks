@@ -16,9 +16,11 @@
 
 		<script id="vertex-shader" type="x-shader/x-vertex">
 attribute vec4 position;
+uniform mat4 modelView;
+uniform mat4 projection;
 
 void main() {
-	gl_Position = position;
+	gl_Position = projection * modelView * position;
 }
 		</script>
 
