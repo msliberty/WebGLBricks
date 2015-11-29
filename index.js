@@ -112,15 +112,6 @@ window.onload = function() {
 	}
 
 
-	//////////////////// Shaders ////////////////////
-
-	var program = initShaders(gl, 'vertex-shader', 'fragment-shader');
-	var positionAttribute = gl.getAttribLocation(program, 'position');
-	var modelViewUniform = gl.getUniformLocation(program, 'modelView');
-	var projectionUniform = gl.getUniformLocation(program, 'projection');
-	var colorUniform = gl.getUniformLocation(program, 'color');
-
-
 	//////////////////// Input ////////////////////
 
 	canvas.oncontextmenu = function(e) { e.preventDefault(); } // capture right-click
@@ -184,6 +175,15 @@ window.onload = function() {
 				cameraDistance = maxCameraDistance;
 		}
 	};
+
+
+	//////////////////// Shaders ////////////////////
+
+	var program = initShaders(gl, 'vertex-shader', 'fragment-shader');
+	var positionAttribute = gl.getAttribLocation(program, 'position');
+	var modelViewUniform = gl.getUniformLocation(program, 'modelView');
+	var projectionUniform = gl.getUniformLocation(program, 'projection');
+	var colorUniform = gl.getUniformLocation(program, 'color');
 
 
 	//////////////////// Drawing ////////////////////
