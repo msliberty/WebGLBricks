@@ -4,10 +4,6 @@ window.onload = function() {
 	var canvas = document.getElementById('canvas');
 	var gl = WebGLUtils.setupWebGL(canvas);
 
-	gl.viewport(0, 0, canvas.width, canvas.height);
-	gl.clearColor(0, 0, 0, 1);
-	gl.enable(gl.DEPTH_TEST);
-
 
 	//////////////////// Shapes 'n' stuff ////////////////////
 
@@ -176,21 +172,81 @@ window.onload = function() {
 		}
 	};
 
+	canvas.onmousedown = function(e) {
+		var objectId = readFromPickBuffer(e.offsetX, e.offsetY);
+		if (objectId !== null)
+			console.log('clicked object #' + objectId);
+	};
+
 
 	//////////////////// Shaders ////////////////////
 
-	var program = initShaders(gl, 'vertex-shader', 'fragment-shader');
-	var positionAttribute = gl.getAttribLocation(program, 'position');
-	var modelViewUniform = gl.getUniformLocation(program, 'modelView');
-	var projectionUniform = gl.getUniformLocation(program, 'projection');
-	var colorUniform = gl.getUniformLocation(program, 'color');
+	var mainProgram = initShaders(gl, 'vertex-shader', 'fragment-shader');
+	var positionAttribute = gl.getAttribLocation(mainProgram, 'position');
+	var modelViewUniform = gl.getUniformLocation(mainProgram, 'modelView');
+	var projectionUniform = gl.getUniformLocation(mainProgram, 'projection');
+	var colorUniform = gl.getUniformLocation(mainProgram, 'color');
+
+	var pickBufferProgram = initShaders(gl, 'pick-buffer-vertex-shader', 'pick-buffer-fragment-shader');
+	var pickBufferPositionAttribute = gl.getAttribLocation(pickBufferProgram, 'position');
+	var pickBufferModelViewUniform = gl.getUniformLocation(pickBufferProgram, 'modelView');
+	var pickBufferProjectionUniform = gl.getUniformLocation(pickBufferProgram, 'projection');
+	var pickBufferObjectIdUniform = gl.getUniformLocation(pickBufferProgram, 'objectId');
+
+
+	//////////////////// Pick Buffer ////////////////////
+
+	var pickBufferTexture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, pickBufferTexture);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+	var pickBuffer = gl.createFramebuffer();
+	gl.bindFramebuffer(gl.FRAMEBUFFER, pickBuffer);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickBufferTexture, 0);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+	function readFromPickBuffer(x, y) {
+		gl.bindFramebuffer(gl.FRAMEBUFFER, pickBuffer);
+		gl.useProgram(pickBufferProgram);
+		gl.clearColor(0, 0, 0, 0);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		var modelViewMatrix = lookAt(cameraPosition(), cameraTarget, [0, 0, 1]);
+		gl.uniformMatrix4fv(pickBufferModelViewUniform, false, flatten(modelViewMatrix));
+
+		var projectionMatrix = perspective(60, canvas.width / canvas.height, 0.01, 100);
+		gl.uniformMatrix4fv(pickBufferProjectionUniform, false, flatten(projectionMatrix));
+
+		gl.bindBuffer(gl.ARRAY_BUFFER, exampleBrickPositionBuffer);
+		gl.enableVertexAttribArray(pickBufferPositionAttribute);
+		gl.vertexAttribPointer(pickBufferPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+		gl.uniform1i(pickBufferObjectIdUniform, 1);//TODO: id for clickable object should go here
+		gl.drawArrays(gl.TRIANGLES, 0, exampleBrickPositions.length);
+
+		var pixels = new Uint8Array(4);
+		y = canvas.height - y; // invert y because textures have (0,0) at bottom left, but html has it at top left
+		gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+		var objectId = null;
+		if (pixels[3] !== 0)
+			objectId = pixels[0] << 16 | pixels[1] << 8 | pixels[2];
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.useProgram(mainProgram);
+		return objectId;
+	}
 
 
 	//////////////////// Drawing ////////////////////
 
-	gl.useProgram(program);
+	gl.viewport(0, 0, canvas.width, canvas.height);
+	gl.enable(gl.DEPTH_TEST);
+	gl.useProgram(mainProgram);
 
 	function redraw() {
+		gl.clearColor(0, 0, 0, 1);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 		var modelViewMatrix = lookAt(cameraPosition(), cameraTarget, [0, 0, 1]);
