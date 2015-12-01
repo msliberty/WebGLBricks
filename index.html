@@ -16,11 +16,12 @@
 
 		<script id="vertex-shader" type="x-shader/x-vertex">
 attribute vec4 position;
-uniform mat4 modelView;
+uniform mat4 model;
+uniform mat4 view;
 uniform mat4 projection;
 
 void main() {
-	gl_Position = projection * modelView * position;
+	gl_Position = projection * view * model * position;
 }
 		</script>
 
@@ -36,7 +37,8 @@ void main() {
 
 		<script id="pick-buffer-vertex-shader" type="x-shader/x-vertex">
 attribute vec4 position;
-uniform mat4 modelView;
+uniform mat4 model;
+uniform mat4 view;
 uniform mat4 projection;
 
 uniform int objectId;
@@ -44,7 +46,7 @@ uniform int objectId;
 varying vec4 color;
 
 void main() {
-	gl_Position = projection * modelView * position;
+	gl_Position = projection * view * model * position;
 
 	int r = objectId / 65536;
 	int gb = objectId - r * 65536;
