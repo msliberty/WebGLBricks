@@ -264,6 +264,7 @@ window.onload = function() {
 	function initializePickBufferAttachments() {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, pickBuffer);
 
+		// Texture for holding colors (which represent object ids)
 		var pickBufferTexture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, pickBufferTexture);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -272,6 +273,7 @@ window.onload = function() {
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickBufferTexture, 0);
 
+		// Renderbuffer for holding depths (i.e., distance from camera)
 		var pickBufferRenderbuffer = gl.createRenderbuffer();
 		gl.bindRenderbuffer(gl.RENDERBUFFER, pickBufferRenderbuffer);
 		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
@@ -288,6 +290,7 @@ window.onload = function() {
 		gl.clearColor(0, 0, 0, 0);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+		// draw objects to pick buffer
 		for (var id in placedBricks) {
 			var brick = placedBricks[id];
 
@@ -303,6 +306,7 @@ window.onload = function() {
 			gl.drawArrays(gl.TRIANGLES, 0, exampleBrickPositions.length);
 		}
 
+		// read color from pick buffer at click location to determine which object was clicked
 		var pixels = new Uint8Array(4);
 		y = canvas.height - y; // invert y because textures have (0,0) at bottom left, but html has it at top left
 		gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
