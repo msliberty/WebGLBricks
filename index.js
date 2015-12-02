@@ -249,7 +249,7 @@ window.onload = function() {
 		for (var id in placedBricks) {
 			var brick = placedBricks[id];
 
-			var modelMatrix = translate(brick.x, brick.y, 0);
+			var modelMatrix = mult(translate(brick.x, brick.y, brick.z), scalem(brick.width, brick.depth, 1));
 			gl.uniformMatrix4fv(pickBufferModelUniform, false, flatten(modelMatrix));
 			gl.uniformMatrix4fv(pickBufferViewUniform, false, flatten(viewMatrix()));
 			gl.uniformMatrix4fv(pickBufferProjectionUniform, false, flatten(projectionMatrix()));
