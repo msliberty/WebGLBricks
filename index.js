@@ -201,6 +201,8 @@ window.onload = function() {
 		var objectId = readFromPickBuffer(e.offsetX, e.offsetY);
 		if (objectId !== null)
 			console.log('clicked object #' + objectId);
+		if (e.buttons === 1 && e.shiftKey)
+			delete placedBricks[objectId];
 	};
 
 
