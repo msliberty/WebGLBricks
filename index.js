@@ -183,7 +183,7 @@ window.onload = function() {
 
 		var leftButton = e.buttons & 1;
 		var rightButton = e.buttons & 2;
-		var middleButton = e.buttons & 4 || (leftButton && rightButton);//TODO
+		var middleButton = e.buttons & 4 || (leftButton && rightButton);
 
 		if (middleButton)
 			return 'translate';
