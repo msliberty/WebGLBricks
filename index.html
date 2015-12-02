@@ -8,7 +8,6 @@
 #canvas-wrapper {
 	text-align: center;
 }
-
 #canvas {
 	display: inline-block;
 }
@@ -19,7 +18,6 @@ attribute vec4 position;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-
 void main() {
 	gl_Position = projection * view * model * position;
 }
@@ -27,9 +25,7 @@ void main() {
 
 		<script id="fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
-
 uniform vec4 color;
-
 void main() {
 	gl_FragColor = color;
 }
@@ -40,14 +36,10 @@ attribute vec4 position;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-
 uniform int objectId;
-
 varying vec4 color;
-
 void main() {
 	gl_Position = projection * view * model * position;
-
 	int r = objectId / 65536;
 	int gb = objectId - r * 65536;
 	int g = gb / 256;
@@ -58,9 +50,7 @@ void main() {
 
 		<script id="pick-buffer-fragment-shader" type="x-shader/x-fragment">
 precision mediump float;
-
 varying vec4 color;
-
 void main() {
 	gl_FragColor = color;
 }
@@ -82,5 +72,16 @@ void main() {
 		<p>Zoom: Right-click / Alt-click and drag</p>
 		<p>To delete a block, hold Shift and click the block.</p>
 		<p>To reset the board, press Shift+R.</p>
+		<p>To delete a block, hold Shift and click the block.</p>
+		<p>To reset the board, press Shift+R.</p>
+
+		<h2>Create New Block:</h2>
+		<p>Width and Depth</p>
+		<input type="number" id="newBlockWidth" value="">
+		<input type="number" id="newBlockDepth" value="">
+		<p>Position on Board</p>
+		<input type="number" id="newBlockX" value="">
+		<input type="number" id="newBlockY" value="">
+		<input type="button" onclick="newBrick()" value="Create Block">
 	</body>
 </html>

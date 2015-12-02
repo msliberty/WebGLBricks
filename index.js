@@ -1,5 +1,18 @@
 "use strict";
 
+var newBrick;
+var index = 0;
+// color options 
+	var colors = [
+		vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
+		vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
+		vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
+		vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
+		vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
+		vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
+		vec4( 0.0, 1.0, 1.0, 1.0 )   // cyan
+	];
+	
 window.onload = function() {
 	var canvas = document.getElementById('canvas');
 	var gl = WebGLUtils.setupWebGL(canvas);
@@ -120,7 +133,7 @@ window.onload = function() {
 
 	var placedBricks = {};
 	var nextBrickId = 0;
-
+		
 	function placeBrick(brick) {
 		var id = nextBrickId++;
 		brick.id = id;
@@ -158,8 +171,29 @@ window.onload = function() {
 	loadPlacedBricks();
 	if (Object.keys(placedBricks).length === 0)
 		resetPlacedBricks();
+	
+	placeBrick({x: 0, y: 0, z:0, width: 3, depth: 2, color: [1, 0, 0, 1]});
+	placeBrick({x:5, y:27, z:0, width: 2, depth: 4, color: [0, 1, 0, 1]});
+	placeBrick({x:15, y:15, z:0, width: 2, depth: 2, color: [.4, .2, .6, 1]});
+	
 
+	// ADDED IN NEW CODE TO ADD BRICKS
+	//added in the new variables
+	//to create repeated new blocks add in a loop or something
+	// also need to save the new blocks somewhere
 
+	newBrick = function() {
+		console.log('top of newBrick');
+		var bwidth = document.getElementById("newBlockWidth").value;
+		var bdepth = document.getElementById("newBlockDepth").value;
+		var bx = document.getElementById("newBlockX").value;
+		var by = document.getElementById("newBlockY").value;
+		index++; //if we want to cycle through the colors list
+		placeBrick({x: bx, y: by, z: 0, width: bwidth, depth: bdepth, color: colors[index%7]});
+		console.log('bottom of newBrick');
+	};
+
+	
 	//////////////////// Input ////////////////////
 
 	canvas.oncontextmenu = function(e) { e.preventDefault(); } // capture right-click
@@ -284,6 +318,8 @@ window.onload = function() {
 
 	initializePickBufferAttachments();
 
+	
+	
 	function readFromPickBuffer(x, y) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, pickBuffer);
 		gl.useProgram(pickBufferProgram);
@@ -358,14 +394,15 @@ window.onload = function() {
 		gl.vertexAttribPointer(positionAttribute, 3, gl.FLOAT, false, 0, 0);
 		gl.drawArrays(gl.TRIANGLES, 0, exampleBrickPositions.length);
 	}
+	
 
-	function drawPeg() {
-		gl.bindBuffer(gl.ARRAY_BUFFER, pegPositionBuffer);
-		gl.enableVertexAttribArray(positionAttribute);
-		gl.vertexAttribPointer(positionAttribute, 3, gl.FLOAT, false, 0, 0);
-		gl.uniform4fv(colorUniform, flatten(exampleBrickColor));
-		gl.drawArrays(gl.TRIANGLES, 0, pegPositions.length);
-	}
+	//function drawPeg() {
+//		gl.bindBuffer(gl.ARRAY_BUFFER, pegPositionBuffer);
+//		gl.enableVertexAttribArray(positionAttribute);
+//		gl.vertexAttribPointer(positionAttribute, 3, gl.FLOAT, false, 0, 0);
+//		gl.uniform4fv(colorUniform, flatten(exampleBrickColor));
+//		gl.drawArrays(gl.TRIANGLES, 0, pegPositions.length);
+//	}
 
 
 	//////////////////// Resizing ////////////////////
