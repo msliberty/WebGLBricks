@@ -225,22 +225,28 @@ window.onload = function() {
 
 	//////////////////// Pick Buffer ////////////////////
 
-	var pickBufferTexture = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, pickBufferTexture);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-
-	var pickBufferRenderbuffer = gl.createRenderbuffer();
-	gl.bindRenderbuffer(gl.RENDERBUFFER, pickBufferRenderbuffer);
-	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
-
 	var pickBuffer = gl.createFramebuffer();
-	gl.bindFramebuffer(gl.FRAMEBUFFER, pickBuffer);
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickBufferTexture, 0);
-	gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, pickBufferRenderbuffer);
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+	function initializePickBufferAttachments() {
+		gl.bindFramebuffer(gl.FRAMEBUFFER, pickBuffer);
+
+		var pickBufferTexture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, pickBufferTexture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, pickBufferTexture, 0);
+
+		var pickBufferRenderbuffer = gl.createRenderbuffer();
+		gl.bindRenderbuffer(gl.RENDERBUFFER, pickBufferRenderbuffer);
+		gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
+		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, pickBufferRenderbuffer);
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	}
+
+	initializePickBufferAttachments();
 
 	function readFromPickBuffer(x, y) {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, pickBuffer);
@@ -278,7 +284,6 @@ window.onload = function() {
 
 	//////////////////// Drawing ////////////////////
 
-	gl.viewport(0, 0, canvas.width, canvas.height);
 	gl.enable(gl.DEPTH_TEST);
 	gl.useProgram(mainProgram);
 
@@ -324,9 +329,43 @@ window.onload = function() {
 		gl.drawArrays(gl.TRIANGLES, 0, pegPositions.length);
 	}
 
+
+	//////////////////// Resizing ////////////////////
+
+	var aspectRatio = 4 / 3; // width / height
+
+	function updateCanvasSize() {
+		var maxWidth = window.innerWidth - 100;
+		var maxHeight = window.innerHeight - 125;
+
+		var width, height;
+		if (maxHeight * aspectRatio <= maxWidth) {
+			width = maxHeight * aspectRatio;
+			height = maxHeight;
+		} else {
+			width = maxWidth;
+			height = maxWidth / aspectRatio;
+		}
+
+		canvas.width = width;
+		canvas.height = height;
+		canvas.style.setProperty('width', width + 'px');
+		canvas.style.setProperty('height', height + 'px');
+
+		gl.viewport(0, 0, width, height);
+		initializePickBufferAttachments();
+	}
+
+	window.addEventListener('resize', updateCanvasSize);
+
+
+	//////////////////// Main Loop ////////////////////
+
 	function handleAnimationFrame() {
 		requestAnimationFrame(handleAnimationFrame);
 		redraw();
 	}
+
+	updateCanvasSize();
 	requestAnimationFrame(handleAnimationFrame);
 };
