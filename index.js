@@ -1,5 +1,18 @@
 "use strict";
 
+//added in  color index 
+var index = 0;
+// color options 
+	var colors = [
+		vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
+		vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
+		vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
+		vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
+		vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
+		vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
+		vec4( 0.0, 1.0, 1.0, 1.0 )   // cyan
+	];
+
 window.onload = function() {
 	var canvas = document.getElementById('canvas');
 	var gl = WebGLUtils.setupWebGL(canvas);
@@ -131,7 +144,20 @@ window.onload = function() {
 	placeBrick({x: 0, y: 0, width: 3, depth: 2, color: [1, 0, 0, 1]});
 	placeBrick({x:5, y:27, width: 2, depth: 4, color: [0, 1, 0, 1]});
 	placeBrick({x:15, y:15, width: 2, depth: 2, color: [.4, .2, .6, 1]});
+		
 
+	// ADDED IN CODE TO ADD BRICKS
+	//added in the new variables
+	//need to store the new blocks created here as well
+	
+	function newBrick(){
+		var bwidth = document.getElementById("newBlockWidth").value;
+		var bdepth = document.getElementById("newBlockDepth").value;
+		var bx = document.getElementById("newBlockX").value;
+		var by = document.getElementById("newBlockY").value;
+		index++; //if we want to cycle through the colors list
+		placeBrick({x: bx, y: by, width: bwidth, depth: bdepth, color: colors[index%7]});
+	};
 
 	//////////////////// Input ////////////////////
 
