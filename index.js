@@ -118,19 +118,46 @@ window.onload = function() {
 
 	//////////////////// Model ////////////////////
 
-	var placedBricks = [];
+	var placedBricks = {};
 	var nextBrickId = 0;
 
 	function placeBrick(brick) {
 		var id = nextBrickId++;
 		brick.id = id;
 		placedBricks[id] = brick;
+		savePlacedBricks();
+	}
+
+	function deleteBrick(id) {
+		delete placedBricks[id];
+		savePlacedBricks();
+	}
+
+	function resetPlacedBricks() {
+		placedBricks = {};
+		nextBrickId = 0;
+		placeBrick({x: 0, y: 0, z:0, width: 3, depth: 2, color: [1, 0, 0, 1]});
+		placeBrick({x:5, y:27, z:0, width: 2, depth: 4, color: [0, 1, 0, 1]});
+		placeBrick({x:15, y:15, z:1, width: 2, depth: 2, color: [.4, .2, .6, 1]});
+	}
+
+	function savePlacedBricks() {
+		try {
+			localStorage.placedBricks = JSON.stringify(placedBricks);
+		} catch (e) {}
+	}
+
+	function loadPlacedBricks() {
+		try {
+			if (localStorage.placedBricks == undefined) return;
+			placedBricks = JSON.parse(localStorage.placedBricks);
+		} catch (e) {}
 	}
 
 
-	placeBrick({x: 0, y: 0, z:0, width: 3, depth: 2, color: [1, 0, 0, 1]});
-	placeBrick({x:5, y:27, z:0, width: 2, depth: 4, color: [0, 1, 0, 1]});
-	placeBrick({x:15, y:15, z:1, width: 2, depth: 2, color: [.4, .2, .6, 1]});
+	loadPlacedBricks();
+	if (Object.keys(placedBricks).length === 0)
+		resetPlacedBricks();
 
 
 	//////////////////// Input ////////////////////
@@ -202,7 +229,14 @@ window.onload = function() {
 		if (objectId !== null)
 			console.log('clicked object #' + objectId);
 		if (e.buttons === 1 && e.shiftKey)
-			delete placedBricks[objectId];
+			deleteBrick(objectId);
+	};
+
+	window.onkeypress = function(e) {
+		// shift+R
+		if (e.shiftKey && e.keyCode === 82) {
+			resetPlacedBricks();
+		}
 	};
 
 
