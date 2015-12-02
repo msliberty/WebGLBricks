@@ -28,34 +28,34 @@ window.onload = function() {
 	var exampleBrickPositions = [
 		[0, 0, 0],
 		[0, 0, 1.5],
-		[3, 0, 0],
+		[1, 0, 0],
 		[0, 0, 1.5],
-		[3, 0, 0],
-		[3, 0, 1.5],
-		[3, 0, 0],
-		[3, 0, 1.5],
-		[3, 2, 0],
-		[3, 0, 1.5],
-		[3, 2, 0],
-		[3, 2, 1.5],
-		[3, 2, 0],
-		[3, 2, 1.5],
-		[0, 2, 0],
-		[3, 2, 1.5],
-		[0, 2, 0],
-		[0, 2, 1.5],
-		[0, 2, 0],
-		[0, 2, 1.5],
+		[1, 0, 0],
+		[1, 0, 1.5],
+		[1, 0, 0],
+		[1, 0, 1.5],
+		[1, 1, 0],
+		[1, 0, 1.5],
+		[1, 1, 0],
+		[1, 1, 1.5],
+		[1, 1, 0],
+		[1, 1, 1.5],
+		[0, 1, 0],
+		[1, 1, 1.5],
+		[0, 1, 0],
+		[0, 1, 1.5],
+		[0, 1, 0],
+		[0, 1, 1.5],
 		[0, 0, 0],
-		[0, 2, 1.5],
+		[0, 1, 1.5],
 		[0, 0, 0],
 		[0, 0, 1.5],
 		[0, 0, 1.5],
-		[0, 2, 1.5],
-		[3, 0, 1.5],
-		[0, 2, 1.5],
-		[3, 0, 1.5],
-		[3, 2, 1.5],
+		[0, 1, 1.5],
+		[1, 0, 1.5],
+		[0, 1, 1.5],
+		[1, 0, 1.5],
+		[1, 1, 1.5],
 	];
 
 	var exampleBrickPositionBuffer = gl.createBuffer();
@@ -128,9 +128,9 @@ window.onload = function() {
 	}
 
 
-	placeBrick({x: 0, y: 0, width: 3, depth: 2, color: [1, 0, 0, 1]});
-	placeBrick({x:5, y:27, width: 2, depth: 4, color: [0, 1, 0, 1]});
-	placeBrick({x:15, y:15, width: 2, depth: 2, color: [.4, .2, .6, 1]});
+	placeBrick({x: 0, y: 0, z:0, width: 3, depth: 2, color: [1, 0, 0, 1]});
+	placeBrick({x:5, y:27, z:0, width: 2, depth: 4, color: [0, 1, 0, 1]});
+	placeBrick({x:15, y:15, z:1, width: 2, depth: 2, color: [.4, .2, .6, 1]});
 
 
 	//////////////////// Input ////////////////////
@@ -304,7 +304,7 @@ window.onload = function() {
 	}
 
 	function drawBrick(brick) {
-		var modelMatrix = translate(brick.x, brick.y, 0);
+		var modelMatrix = mult(translate(brick.x, brick.y, brick.z), scalem(brick.width, brick.depth, 1));
 		gl.uniformMatrix4fv(modelUniform, false, flatten(modelMatrix));
 		gl.uniform4fv(colorUniform, flatten(brick.color));
 
