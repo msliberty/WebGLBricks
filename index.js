@@ -135,6 +135,13 @@ window.onload = function() {
 	var nextBrickId = 0;
 		
 	function placeBrick(brick) {
+		brick.z = brick.z || 0;
+		while (isWithinAny(brick)) {
+			console.log('bump dat z', brick.z);
+			++brick.z;
+		}
+		console.log(brick.z, brick);
+
 		var id = nextBrickId++;
 		brick.id = id;
 		placedBricks[id] = brick;
@@ -154,16 +161,72 @@ window.onload = function() {
 		placeBrick({x:15, y:15, z:1, width: 2, depth: 2, color: [.4, .2, .6, 1]});
 	}
 
+
+	// ADDED IN NEW CODE TO ADD BRICKS
+	//added in the new variables
+	//to create repeated new blocks add in a loop or something
+	// also need to save the new blocks somewhere
+	
+	newBrick = function(){
+		var bwidth = +document.getElementById("newBlockWidth").value;
+		var bdepth = +document.getElementById("newBlockDepth").value;
+		var bx = +document.getElementById("newBlockX").value;
+		var by = +document.getElementById("newBlockY").value;
+		index++; //if we want to cycle through the colors list
+		placeBrick({x: bx, y: by, z:0, width: bwidth, depth: bdepth, color: colors[index%7]});
+	};
+
 	function savePlacedBricks() {
 		try {
 			localStorage.placedBricks = JSON.stringify(placedBricks);
+			localStorage.nextBrickId = ""+nextBrickId;
 		} catch (e) {}
+	}
+
+	// check if a brick is overlapping this.MBR
+	function isWithin(a, b) { 
+		// if (this.botleft.x < brick.topRight.x && this.topRight.x > brick.botleft.x
+		// 	&& this.topRight.y < brick.botleft.y && this.botleft.y > brick.topRight.y) {
+		// 	return true;
+		// }
+
+		// calculate top-right for a
+		var aTopRightX = a.x + a.width;
+		var aTopRightY = a.y + a.depth;
+		var aTopRightZ = a.z + 1;
+
+		// calculate top-right coordinates for b
+		var bTopRightX = b.x + b.width;
+		var bTopRightY = b.y + b.depth;
+		var bTopRightZ = b.z + 1;
+
+		if ((checkBetweenness(a.x, b.x, aTopRightX) || checkBetweenness(b.x, a.x, bTopRightX))
+			&& (checkBetweenness(a.y, b.y, aTopRightY) || checkBetweenness(b.y, a.y, bTopRightY))
+			&& (checkBetweenness(a.z, b.z, aTopRightZ) || checkBetweenness(b.z, a.z, bTopRightZ))) {
+			return true;
+		}
+		return false;
+	};
+
+	function checkBetweenness(a, x, b) {
+		return a <= x && x < b;
+	}
+
+	function isWithinAny(brick) {
+		console.log('top of isWithinAny');
+		for (var id in placedBricks) {
+			if (id === brick.id) continue;
+			if (isWithin(brick, placedBricks[id]))
+				return true;
+		}
+		return false;
 	}
 
 	function loadPlacedBricks() {
 		try {
 			if (localStorage.placedBricks == undefined) return;
 			placedBricks = JSON.parse(localStorage.placedBricks);
+			nextBrickId = +(localStorage.nextBrickId);
 		} catch (e) {}
 	}
 
@@ -171,21 +234,6 @@ window.onload = function() {
 	loadPlacedBricks();
 	if (Object.keys(placedBricks).length === 0)
 		resetPlacedBricks();
-	
-	// ADDED IN NEW CODE TO ADD BRICKS
-	//added in the new variables
-	//to create repeated new blocks add in a loop or something
-	// also need to save the new blocks somewhere
-
-	newBrick = function() {
-		var bwidth = document.getElementById("newBlockWidth").value;
-		var bdepth = document.getElementById("newBlockDepth").value;
-		var bx = document.getElementById("newBlockX").value;
-		var by = document.getElementById("newBlockY").value;
-		index++; //if we want to cycle through the colors list
-		placeBrick({x: bx, y: by, z: 0, width: bwidth, depth: bdepth, color: colors[index%7]});
-	};
-
 	
 	//////////////////// Input ////////////////////
 
@@ -323,7 +371,7 @@ window.onload = function() {
 		for (var id in placedBricks) {
 			var brick = placedBricks[id];
 
-			var modelMatrix = mult(translate(brick.x, brick.y, brick.z), scalem(brick.width, brick.depth, 1));
+			var modelMatrix = mult(translate(brick.x, brick.y, brick.z * 1.5), scalem(brick.width, brick.depth, 1));
 			gl.uniformMatrix4fv(pickBufferModelUniform, false, flatten(modelMatrix));
 			gl.uniformMatrix4fv(pickBufferViewUniform, false, flatten(viewMatrix()));
 			gl.uniformMatrix4fv(pickBufferProjectionUniform, false, flatten(projectionMatrix()));
@@ -378,7 +426,7 @@ window.onload = function() {
 	}
 
 	function drawBrick(brick) {
-		var modelMatrix = mult(translate(brick.x, brick.y, brick.z), scalem(brick.width, brick.depth, 1));
+		var modelMatrix = mult(translate(brick.x, brick.y, brick.z * 1.5), scalem(brick.width, brick.depth, 1));
 		gl.uniformMatrix4fv(modelUniform, false, flatten(modelMatrix));
 		gl.uniform4fv(colorUniform, flatten(brick.color));
 
@@ -388,15 +436,6 @@ window.onload = function() {
 		gl.drawArrays(gl.TRIANGLES, 0, exampleBrickPositions.length);
 	}
 	
-
-	//function drawPeg() {
-//		gl.bindBuffer(gl.ARRAY_BUFFER, pegPositionBuffer);
-//		gl.enableVertexAttribArray(positionAttribute);
-//		gl.vertexAttribPointer(positionAttribute, 3, gl.FLOAT, false, 0, 0);
-//		gl.uniform4fv(colorUniform, flatten(exampleBrickColor));
-//		gl.drawArrays(gl.TRIANGLES, 0, pegPositions.length);
-//	}
-
 
 	//////////////////// Resizing ////////////////////
 
