@@ -183,14 +183,12 @@ window.onload = function() {
 	// also need to save the new blocks somewhere
 
 	newBrick = function() {
-		console.log('top of newBrick');
 		var bwidth = document.getElementById("newBlockWidth").value;
 		var bdepth = document.getElementById("newBlockDepth").value;
 		var bx = document.getElementById("newBlockX").value;
 		var by = document.getElementById("newBlockY").value;
 		index++; //if we want to cycle through the colors list
 		placeBrick({x: bx, y: by, z: 0, width: bwidth, depth: bdepth, color: colors[index%7]});
-		console.log('bottom of newBrick');
 	};
 
 	
