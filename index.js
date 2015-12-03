@@ -172,11 +172,6 @@ window.onload = function() {
 	if (Object.keys(placedBricks).length === 0)
 		resetPlacedBricks();
 	
-	placeBrick({x: 0, y: 0, z:0, width: 3, depth: 2, color: [1, 0, 0, 1]});
-	placeBrick({x:5, y:27, z:0, width: 2, depth: 4, color: [0, 1, 0, 1]});
-	placeBrick({x:15, y:15, z:0, width: 2, depth: 2, color: [.4, .2, .6, 1]});
-	
-
 	// ADDED IN NEW CODE TO ADD BRICKS
 	//added in the new variables
 	//to create repeated new blocks add in a loop or something
